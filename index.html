@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trình Đọc Sách</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Lora:ital,wght@0,400;0,500;1,400&family=Merriweather:ital,wght@0,300;0,400;1,300;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;1,8..60,300;1,8..60,400&family=Literata:ital,opsz,wght@0,7..72,300;0,7..72,400;1,7..72,300;1,7..72,400&family=Noto+Serif:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f0e8;
+    --bg-page: #faf7f2;
+    --text: #2c2520;
+    --text-muted: #7a6e65;
+    --accent: #8b4a2f;
+    --border: rgba(0,0,0,0.12);
+    --panel: #ede8df;
+    --shadow: rgba(60,40,20,0.15);
+    --font-size: 18px;
+    --line-height: 1.8;
+    --margin-h: 80px;
+  }
+
+  body {
+    background: var(--bg);
+    min-height: 100vh;
+    font-family: 'Crimson Pro', Georgia, serif;
+    color: var(--text);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ── INPUT SCREEN ── */
+  #input-screen {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .logo {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 13px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .title-main {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 42px;
+    font-weight: 400;
+    color: var(--text);
+    text-align: center;
+    margin-bottom: 8px;
+    line-height: 1.2;
+  }
+
+  .subtitle {
+    font-size: 16px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-bottom: 48px;
+    font-style: italic;
+  }
+
+  .input-card {
+    background: var(--bg-page);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 32px;
+    width: 100%;
+    max-width: 680px;
+    box-shadow: 0 4px 32px var(--shadow);
+  }
+
+  .input-label {
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  #text-input {
+    width: 100%;
+    height: 260px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 16px;
+    line-height: 1.7;
+    padding: 16px;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  #text-input:focus { border-color: var(--accent); }
+  #text-input::placeholder { color: var(--text-muted); font-style: italic; }
+
+  .input-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 20px 0;
+  }
+
+  .opt-group label {
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .opt-group select, .opt-group input[type=number] {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    padding: 8px 10px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  #start-btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background: var(--accent);
+    color: #faf7f2;
+    border: none;
+    border-radius: 2px;
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 18px;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: opacity 0.2s;
+    margin-top: 4px;
+  }
+  #start-btn:hover { opacity: 0.88; }
+
+  /* ── READER SCREEN ── */
+  #reader-screen { display: none; min-height: 100vh; flex-direction: column; }
+
+  /* Toolbar */
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    height: 52px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  .toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 12px;
+    border-right: 1px solid var(--border);
+    height: 100%;
+  }
+  .toolbar-group:last-child { border-right: none; margin-left: auto; }
+  .toolbar-group:first-child { padding-left: 0; }
+
+  .tb-label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-right: 6px;
+    white-space: nowrap;
+  }
+
+  .tb-btn {
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    padding: 4px 8px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    white-space: nowrap;
+  }
+  .tb-btn:hover { background: var(--bg); border-color: var(--border); }
+
+  .tb-val {
+    font-size: 13px;
+    min-width: 36px;
+    text-align: center;
+    color: var(--text);
+  }
+
+  .tb-select {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    padding: 4px 6px;
+    cursor: pointer;
+    outline: none;
+    max-width: 140px;
+  }
+
+  .theme-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text);
+    transition: background 0.15s;
+  }
+  .theme-btn:hover { background: var(--bg); }
+  .theme-btn.active { background: var(--accent); color: #faf7f2; border-color: var(--accent); }
+
+  /* Book area */
+  .book-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 20px;
+  }
+
+  .page-container {
+    background: var(--bg-page);
+    border: 1px solid var(--border);
+    width: 100%;
+    max-width: 760px;
+    min-height: 80vh;
+    box-shadow: 0 2px 24px var(--shadow), 0 0 0 1px rgba(0,0,0,0.04);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Subtle page texture lines */
+  .page-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      transparent,
+      transparent calc(var(--line-height) * var(--font-size) - 1px),
+      rgba(0,0,0,0.03) calc(var(--line-height) * var(--font-size) - 1px),
+      rgba(0,0,0,0.03) calc(var(--line-height) * var(--font-size))
+    );
+    background-size: 100% calc(var(--line-height) * var(--font-size));
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  #page-content {
+    padding: 64px var(--margin-h);
+    font-size: var(--font-size);
+    line-height: var(--line-height);
+    color: var(--text);
+    min-height: 80vh;
+  }
+
+  #page-content p {
+    margin-bottom: calc(var(--font-size) * 0.8);
+    text-align: justify;
+    text-indent: 1.5em;
+    hyphens: auto;
+  }
+  #page-content p:first-child { text-indent: 0; }
+
+  /* Drop cap on first paragraph */
+  #page-content p:first-child::first-letter {
+    font-size: 3.8em;
+    font-weight: 500;
+    float: left;
+    line-height: 0.75;
+    margin: 0.06em 0.08em 0 0;
+    color: var(--accent);
+    font-family: 'EB Garamond', Georgia, serif;
+  }
+
+  /* Pagination footer */
+  .page-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px var(--margin-h);
+    border-top: 1px solid var(--border);
+    background: var(--bg-page);
+  }
+
+  .nav-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--text);
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 15px;
+    padding: 8px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .nav-btn:hover:not(:disabled) { background: var(--accent); color: #faf7f2; border-color: var(--accent); }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; }
+
+  .page-info {
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+  .page-info strong { color: var(--text); font-weight: 500; }
+
+  /* Progress bar */
+  .progress-bar {
+    height: 2px;
+    background: var(--border);
+    width: 100%;
+    max-width: 760px;
+    margin-top: 12px;
+    border-radius: 1px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 1px;
+    transition: width 0.3s ease;
+  }
+
+  #back-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 13px;
+    padding: 5px 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  #back-btn:hover { color: var(--text); border-color: var(--text-muted); }
+
+  /* ── THEMES ── */
+  body.theme-sepia {
+    --bg: #f2ead8; --bg-page: #f9f4e8; --text: #3d2b1f;
+    --text-muted: #8a7460; --accent: #7a4030; --border: rgba(0,0,0,0.10);
+    --panel: #e8dfc8; --shadow: rgba(50,30,10,0.12);
+  }
+  body.theme-dark {
+    --bg: #1a1916; --bg-page: #211f1c; --text: #d4cfc5;
+    --text-muted: #6e6a63; --accent: #c4855a; --border: rgba(255,255,255,0.08);
+    --panel: #2a2825; --shadow: rgba(0,0,0,0.4);
+  }
+  body.theme-light {
+    --bg: #f0f0f0; --bg-page: #ffffff; --text: #1a1a1a;
+    --text-muted: #666; --accent: #5a6fa8; --border: rgba(0,0,0,0.1);
+    --panel: #e8e8e8; --shadow: rgba(0,0,0,0.08);
+  }
+  body.theme-night {
+    --bg: #0f1117; --bg-page: #161b22; --text: #b8c0cc;
+    --text-muted: #4a5568; --accent: #4a90d9; --border: rgba(255,255,255,0.06);
+    --panel: #1c2128; --shadow: rgba(0,0,0,0.5);
+  }
+
+  /* Page turn animation */
+  .page-container.turning {
+    animation: pageTurn 0.25s ease;
+  }
+  @keyframes pageTurn {
+    0% { opacity: 1; transform: translateX(0); }
+    50% { opacity: 0.3; transform: translateX(-8px); }
+    100% { opacity: 1; transform: translateX(0); }
+  }
+
+  /* Keyboard hint */
+  .kb-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 16px;
+    letter-spacing: 0.05em;
+    opacity: 0.7;
+  }
+
+  @media (max-width: 600px) {
+    #page-content { padding: 32px 20px; }
+    .page-footer { padding: 12px 20px; }
+    .toolbar { gap: 0; }
+    .toolbar-group { padding: 0 8px; }
+    .input-options { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body class="theme-sepia">
+
+<!-- INPUT SCREEN -->
+<div id="input-screen">
+  <div class="logo">&#9758; Trình đọc văn bản</div>
+  <h1 class="title-main">Nhập nội dung<br>để bắt đầu đọc</h1>
+  <p class="subtitle">Dán văn bản vào khung bên dưới, chọn font và bắt đầu</p>
+
+  <div class="input-card">
+    <label class="input-label">Nội dung văn bản</label>
+    <textarea id="text-input" placeholder="Dán hoặc gõ văn bản vào đây…
+
+Bạn có thể nhập bất kỳ nội dung nào: truyện, bài báo, tài liệu học tập, hay bất cứ thứ gì bạn muốn đọc một cách thoải mái.
+
+Sau đó hệ thống sẽ tự động phân trang và trình bày như một cuốn sách điện tử."></textarea>
+
+    <div class="input-options">
+      <div class="opt-group">
+        <label>Font chữ</label>
+        <select id="init-font">
+          <option value="'Crimson Pro', Georgia, serif">Crimson Pro (Cổ điển)</option>
+          <option value="'Lora', Georgia, serif">Lora (Tinh tế)</option>
+          <option value="'Merriweather', Georgia, serif">Merriweather (Dễ đọc)</option>
+          <option value="'EB Garamond', Georgia, serif">EB Garamond (Cổ thư)</option>
+          <option value="'Source Serif 4', Georgia, serif">Source Serif 4 (Hiện đại)</option>
+          <option value="'Literata', Georgia, serif">Literata (E-reader)</option>
+          <option value="'Noto Serif', Georgia, serif">Noto Serif (Đa ngôn ngữ)</option>
+          <option value="Georgia, serif">Georgia (Phổ thông)</option>
+        </select>
+      </div>
+      <div class="opt-group">
+        <label>Số từ mỗi trang (ước tính)</label>
+        <input type="number" id="init-words" value="350" min="100" max="1000" step="50">
+      </div>
+    </div>
+
+    <button id="start-btn" onclick="startReading()">Bắt đầu đọc →</button>
+  </div>
+</div>
+
+<!-- READER SCREEN -->
+<div id="reader-screen">
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar-group">
+      <button id="back-btn" onclick="backToInput()">← Nhập lại</button>
+    </div>
+
+    <div class="toolbar-group">
+      <span class="tb-label">Font</span>
+      <select class="tb-select" id="font-select" onchange="changeFont(this.value)">
+        <option value="'Crimson Pro', Georgia, serif">Crimson Pro</option>
+        <option value="'Lora', Georgia, serif">Lora</option>
+        <option value="'Merriweather', Georgia, serif">Merriweather</option>
+        <option value="'EB Garamond', Georgia, serif">EB Garamond</option>
+        <option value="'Source Serif 4', Georgia, serif">Source Serif 4</option>
+        <option value="'Literata', Georgia, serif">Literata</option>
+        <option value="'Noto Serif', Georgia, serif">Noto Serif</option>
+        <option value="Georgia, serif">Georgia</option>
+      </select>
+    </div>
+
+    <div class="toolbar-group">
+      <span class="tb-label">Cỡ</span>
+      <button class="tb-btn" onclick="adjFont(-1)">A−</button>
+      <span class="tb-val" id="font-val">18</span>
+      <button class="tb-btn" onclick="adjFont(1)">A+</button>
+    </div>
+
+    <div class="toolbar-group">
+      <span class="tb-label">Dòng</span>
+      <button class="tb-btn" onclick="adjLine(-0.1)">↕−</button>
+      <span class="tb-val" id="line-val">1.8</span>
+      <button class="tb-btn" onclick="adjLine(0.1)">↕+</button>
+    </div>
+
+    <div class="toolbar-group">
+      <span class="tb-label">Lề</span>
+      <button class="tb-btn" onclick="adjMargin(-10)">←→</button>
+      <span class="tb-val" id="margin-val">80</span>
+      <button class="tb-btn" onclick="adjMargin(10)">→←</button>
+    </div>
+
+    <div class="toolbar-group">
+      <button class="theme-btn" onclick="setTheme('theme-paper')" title="Giấy">☀</button>
+      <button class="theme-btn active" onclick="setTheme('theme-sepia')" title="Sepia">🌤</button>
+      <button class="theme-btn" onclick="setTheme('theme-dark')" title="Tối">🌙</button>
+      <button class="theme-btn" onclick="setTheme('theme-night')" title="Đêm">⭐</button>
+      <button class="theme-btn" onclick="setTheme('theme-light')" title="Sáng">◎</button>
+    </div>
+  </div>
+
+  <!-- Book -->
+  <div class="book-wrapper">
+    <div class="page-container" id="page-box">
+      <div id="page-content"></div>
+      <div class="page-footer">
+        <button class="nav-btn" id="prev-btn" onclick="prevPage()">← Trước</button>
+        <div class="page-info">
+          Trang <strong id="cur-page">1</strong> / <strong id="total-pages">1</strong>
+        </div>
+        <button class="nav-btn" id="next-btn" onclick="nextPage()">Tiếp →</button>
+      </div>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+
+    <div class="kb-hint">Phím ← → hoặc Space để lật trang</div>
+  </div>
+</div>
+
+<script>
+let pages = [];
+let currentPage = 0;
+let fontSize = 18;
+let lineHeight = 1.8;
+let marginH = 80;
+let currentFont = "'Crimson Pro', Georgia, serif";
+let wordsPerPage = 350;
+
+function splitIntoPages(text, wpg) {
+  const paragraphs = text.split(/\n+/).map(p => p.trim()).filter(p => p.length > 0);
+  const result = [];
+  let currentParagraphs = [];
+  let wordCount = 0;
+
+  for (const para of paragraphs) {
+    const words = para.split(/\s+/).length;
+    if (wordCount + words > wpg && currentParagraphs.length > 0) {
+      result.push(currentParagraphs.slice());
+      currentParagraphs = [para];
+      wordCount = words;
+    } else {
+      currentParagraphs.push(para);
+      wordCount += words;
+    }
+  }
+  if (currentParagraphs.length > 0) result.push(currentParagraphs);
+  return result;
+}
+
+function renderPage(idx) {
+  const content = document.getElementById('page-content');
+  const pageBox = document.getElementById('page-box');
+
+  pageBox.classList.remove('turning');
+  void pageBox.offsetWidth;
+  pageBox.classList.add('turning');
+
+  content.innerHTML = pages[idx].map(p => `<p>${escapeHtml(p)}</p>`).join('');
+
+  document.getElementById('cur-page').textContent = idx + 1;
+  document.getElementById('total-pages').textContent = pages.length;
+  document.getElementById('prev-btn').disabled = idx === 0;
+  document.getElementById('next-btn').disabled = idx === pages.length - 1;
+
+  const pct = pages.length > 1 ? (idx / (pages.length - 1)) * 100 : 100;
+  document.getElementById('progress-fill').style.width = Math.round(pct) + '%';
+}
+
+function escapeHtml(t) {
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function startReading() {
+  const text = document.getElementById('text-input').value.trim();
+  if (!text) { document.getElementById('text-input').focus(); return; }
+
+  currentFont = document.getElementById('init-font').value;
+  wordsPerPage = parseInt(document.getElementById('init-words').value) || 350;
+
+  pages = splitIntoPages(text, wordsPerPage);
+  currentPage = 0;
+
+  applyStyles();
+  document.getElementById('font-select').value = currentFont;
+  document.getElementById('font-val').textContent = fontSize;
+  document.getElementById('line-val').textContent = lineHeight.toFixed(1);
+  document.getElementById('margin-val').textContent = marginH;
+
+  document.getElementById('input-screen').style.display = 'none';
+  document.getElementById('reader-screen').style.display = 'flex';
+
+  renderPage(0);
+  window.scrollTo(0, 0);
+}
+
+function backToInput() {
+  document.getElementById('reader-screen').style.display = 'none';
+  document.getElementById('input-screen').style.display = 'flex';
+}
+
+function applyStyles() {
+  const root = document.documentElement;
+  root.style.setProperty('--font-size', fontSize + 'px');
+  root.style.setProperty('--line-height', lineHeight);
+  root.style.setProperty('--margin-h', marginH + 'px');
+  document.getElementById('page-content').style.fontFamily = currentFont;
+}
+
+function adjFont(d) {
+  fontSize = Math.max(12, Math.min(32, fontSize + d));
+  document.getElementById('font-val').textContent = fontSize;
+  applyStyles();
+}
+
+function adjLine(d) {
+  lineHeight = Math.max(1.2, Math.min(3.0, Math.round((lineHeight + d) * 10) / 10));
+  document.getElementById('line-val').textContent = lineHeight.toFixed(1);
+  applyStyles();
+}
+
+function adjMargin(d) {
+  marginH = Math.max(16, Math.min(160, marginH + d));
+  document.getElementById('margin-val').textContent = marginH;
+  applyStyles();
+}
+
+function changeFont(val) {
+  currentFont = val;
+  applyStyles();
+}
+
+function setTheme(t) {
+  document.body.className = t;
+  document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+function nextPage() {
+  if (currentPage < pages.length - 1) {
+    currentPage++;
+    renderPage(currentPage);
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+}
+
+function prevPage() {
+  if (currentPage > 0) {
+    currentPage--;
+    renderPage(currentPage);
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (document.getElementById('reader-screen').style.display === 'none') return;
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextPage(); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); prevPage(); }
+});
+
+// Swipe support
+let touchStartX = 0;
+document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; });
+document.addEventListener('touchend', e => {
+  if (document.getElementById('reader-screen').style.display === 'none') return;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if (Math.abs(dx) > 60) { dx < 0 ? nextPage() : prevPage(); }
+});
+</script>
+</body>
+</html>
