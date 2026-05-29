@@ -10,37 +10,30 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  html, body {
-    height: 100%;
-    overflow: hidden;
-  }
-
   :root {
-    --bg: #1a1916;
-    --bg-page: #211f1c;
-    --text: #d4cfc5;
-    --text-muted: #6e6a63;
-    --accent: #c4855a;
-    --border: rgba(255,255,255,0.08);
-    --panel: #2a2825;
-    --shadow: rgba(0,0,0,0.4);
-    --font-size: 28px;
+    --bg: #f5f0e8;
+    --bg-page: #faf7f2;
+    --text: #2c2520;
+    --text-muted: #7a6e65;
+    --accent: #8b4a2f;
+    --border: rgba(0,0,0,0.12);
+    --panel: #ede8df;
+    --shadow: rgba(60,40,20,0.15);
+    --font-size: 18px;
     --line-height: 1.8;
     --margin-h: 80px;
   }
 
   body {
     background: var(--bg);
-    height: 100%;
+    min-height: 100vh;
     font-family: 'Crimson Pro', Georgia, serif;
     color: var(--text);
     transition: background 0.3s, color 0.3s;
   }
 
-  /* Input screen scrolls internally */
+  /* ── INPUT SCREEN ── */
   #input-screen {
-    height: 100%;
-    overflow-y: auto;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -161,7 +154,7 @@
   #start-btn:hover { opacity: 0.88; }
 
   /* ── READER SCREEN ── */
-  #reader-screen { display: none; height: 100vh; flex-direction: column; overflow: hidden; }
+  #reader-screen { display: none; min-height: 100vh; flex-direction: column; }
 
   /* Toolbar */
   .toolbar {
@@ -252,9 +245,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 16px 20px 8px;
-    overflow: hidden;
-    min-height: 0;
+    padding: 48px 20px;
   }
 
   .page-container {
@@ -262,13 +253,10 @@
     border: 1px solid var(--border);
     width: 100%;
     max-width: 760px;
-    flex: 1;
-    min-height: 0;
+    min-height: 80vh;
     box-shadow: 0 2px 24px var(--shadow), 0 0 0 1px rgba(0,0,0,0.04);
     position: relative;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
   }
 
   /* Subtle page texture lines */
@@ -288,13 +276,11 @@
   }
 
   #page-content {
-    padding: 32px var(--margin-h);
+    padding: 64px var(--margin-h);
     font-size: var(--font-size);
     line-height: var(--line-height);
     color: var(--text);
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
+    min-height: 80vh;
   }
 
   #page-content p {
@@ -432,7 +418,7 @@
   }
 </style>
 </head>
-<body class="theme-dark">
+<body class="theme-sepia">
 
 <!-- INPUT SCREEN -->
 <div id="input-screen">
@@ -449,7 +435,7 @@ Bạn có thể nhập bất kỳ nội dung nào: truyện, bài báo, tài li�
 Sau đó hệ thống sẽ tự động phân trang và trình bày như một cuốn sách điện tử."></textarea>
 
     <div class="input-options">
-      <div class="opt-group" style="grid-column: 1 / -1;">
+      <div class="opt-group">
         <label>Font chữ</label>
         <select id="init-font">
           <option value="'Crimson Pro', Georgia, serif">Crimson Pro (Cổ điển)</option>
@@ -461,6 +447,10 @@ Sau đó hệ thống sẽ tự động phân trang và trình bày như một c
           <option value="'Noto Serif', Georgia, serif">Noto Serif (Đa ngôn ngữ)</option>
           <option value="Georgia, serif">Georgia (Phổ thông)</option>
         </select>
+      </div>
+      <div class="opt-group">
+        <label>Số từ mỗi trang (ước tính)</label>
+        <input type="number" id="init-words" value="350" min="100" max="1000" step="50">
       </div>
     </div>
 
@@ -494,7 +484,7 @@ Sau đó hệ thống sẽ tự động phân trang và trình bày như một c
     <div class="toolbar-group">
       <span class="tb-label">Cỡ</span>
       <button class="tb-btn" onclick="adjFont(-1)">A−</button>
-      <span class="tb-val" id="font-val">28</span>
+      <span class="tb-val" id="font-val">18</span>
       <button class="tb-btn" onclick="adjFont(1)">A+</button>
     </div>
 
@@ -514,8 +504,8 @@ Sau đó hệ thống sẽ tự động phân trang và trình bày như một c
 
     <div class="toolbar-group">
       <button class="theme-btn" onclick="setTheme('theme-paper')" title="Giấy">☀</button>
-      <button class="theme-btn" onclick="setTheme('theme-sepia')" title="Sepia">🌤</button>
-      <button class="theme-btn active" onclick="setTheme('theme-dark')" title="Tối">🌙</button>
+      <button class="theme-btn active" onclick="setTheme('theme-sepia')" title="Sepia">🌤</button>
+      <button class="theme-btn" onclick="setTheme('theme-dark')" title="Tối">🌙</button>
       <button class="theme-btn" onclick="setTheme('theme-night')" title="Đêm">⭐</button>
       <button class="theme-btn" onclick="setTheme('theme-light')" title="Sáng">◎</button>
     </div>
@@ -545,11 +535,11 @@ Sau đó hệ thống sẽ tự động phân trang và trình bày như một c
 <script>
 let pages = [];
 let currentPage = 0;
-let fontSize = 28;
+let fontSize = 18;
 let lineHeight = 1.8;
 let marginH = 80;
 let currentFont = "'Crimson Pro', Georgia, serif";
-let wordsPerPage = 200;
+let wordsPerPage = 350;
 
 function splitIntoPages(text, wpg) {
   const paragraphs = text.split(/\n+/).map(p => p.trim()).filter(p => p.length > 0);
@@ -600,9 +590,8 @@ function startReading() {
   if (!text) { document.getElementById('text-input').focus(); return; }
 
   currentFont = document.getElementById('init-font').value;
+  wordsPerPage = parseInt(document.getElementById('init-words').value) || 350;
 
-  // Use dynamic page sizing based on viewport
-  wordsPerPage = estimateWordsPerPage();
   pages = splitIntoPages(text, wordsPerPage);
   currentPage = 0;
 
@@ -612,31 +601,11 @@ function startReading() {
   document.getElementById('line-val').textContent = lineHeight.toFixed(1);
   document.getElementById('margin-val').textContent = marginH;
 
-  // Set dark theme button active
-  document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
-  document.querySelector('.theme-btn[title="Tối"]').classList.add('active');
-
   document.getElementById('input-screen').style.display = 'none';
   document.getElementById('reader-screen').style.display = 'flex';
 
   renderPage(0);
-}
-
-function estimateWordsPerPage() {
-  // Estimate how many words fit in the visible area
-  const toolbarH = 52;
-  const footerH = 56;
-  const progressH = 24;
-  const hintH = 28;
-  const paddingV = 32 * 2; // top+bottom padding of page-content
-  const availH = window.innerHeight - toolbarH - footerH - progressH - hintH - 16*2 - paddingV;
-  const lineH = fontSize * lineHeight;
-  const lines = Math.floor(availH / lineH);
-
-  const availW = Math.min(760, window.innerWidth - 40) - marginH * 2;
-  const charsPerLine = Math.floor(availW / (fontSize * 0.5));
-  const wordsPerLine = charsPerLine / 5.5;
-  return Math.max(80, Math.floor(lines * wordsPerLine * 0.85));
+  window.scrollTo(0, 0);
 }
 
 function backToInput() {
@@ -685,6 +654,7 @@ function nextPage() {
   if (currentPage < pages.length - 1) {
     currentPage++;
     renderPage(currentPage);
+    window.scrollTo({top: 0, behavior: 'smooth'});
   }
 }
 
@@ -692,6 +662,7 @@ function prevPage() {
   if (currentPage > 0) {
     currentPage--;
     renderPage(currentPage);
+    window.scrollTo({top: 0, behavior: 'smooth'});
   }
 }
 
