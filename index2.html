@@ -161,92 +161,7 @@
   #start-btn:hover { opacity: 0.88; }
 
   /* ── READER SCREEN ── */
-  #reader-screen {
-    display: none;
-    height: 100vh;
-    flex-direction: column;
-    overflow-y: auto;
-  }
-
-  /* ── PAGED MODE (default) ── */
-  #reader-screen:not(.scroll-mode) {
-    overflow: hidden;
-  }
-  #reader-screen:not(.scroll-mode) .book-wrapper {
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
-  }
-  #reader-screen:not(.scroll-mode) .page-container {
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
-  }
-  #reader-screen:not(.scroll-mode) #page-content {
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  /* ── SCROLL MODE ── */
-  #reader-screen.scroll-mode {
-    overflow-y: auto;
-  }
-  #reader-screen.scroll-mode .book-wrapper {
-    flex: none;
-    padding-bottom: 80px;
-  }
-  #reader-screen.scroll-mode .page-container {
-    flex: none;
-    height: auto;
-    overflow: visible;
-  }
-  #reader-screen.scroll-mode #page-content {
-    height: auto;
-    overflow: visible;
-  }
-  #reader-screen.scroll-mode .page-footer,
-  #reader-screen.scroll-mode .progress-bar,
-  #reader-screen.scroll-mode .kb-hint { display: none; }
-  #reader-screen.scroll-mode #scroll-back-top { display: flex; }
-
-  #scroll-back-top {
-    display: none;
-    position: fixed;
-    bottom: 24px;
-    right: 20px;
-    width: 40px;
-    height: 40px;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: 50%;
-    font-size: 18px;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 4px 16px var(--shadow);
-    z-index: 200;
-    opacity: 0.85;
-    transition: opacity 0.2s;
-  }
-  #scroll-back-top:hover { opacity: 1; }
-
-  .view-mode-btn {
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    padding: 5px 8px;
-    cursor: pointer;
-    font-size: 12px;
-    color: var(--text);
-    white-space: nowrap;
-    transition: background 0.15s, color 0.15s;
-  }
-  .view-mode-btn:hover { background: var(--bg); }
-  .view-mode-btn.active { background: var(--accent); color: #faf7f2; border-color: var(--accent); }
-  .export-btn { border-color: var(--accent); color: var(--accent); }
-  .export-btn:hover { background: var(--accent); color: #faf7f2; }
+  #reader-screen { display: none; height: 100vh; flex-direction: column; overflow: hidden; }
 
   /* Toolbar */
   .toolbar {
@@ -255,17 +170,14 @@
     z-index: 100;
     background: var(--panel);
     border-bottom: 1px solid var(--border);
-    padding: 0 12px;
+    padding: 0 24px;
     display: flex;
     align-items: center;
     gap: 0;
     height: 52px;
-    flex-shrink: 0;
     flex-wrap: nowrap;
     overflow-x: auto;
-    scrollbar-width: none;
   }
-  .toolbar::-webkit-scrollbar { display: none; }
 
   .toolbar-group {
     display: flex;
@@ -336,10 +248,13 @@
 
   /* Book area */
   .book-wrapper {
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 16px 20px 8px;
+    overflow: hidden;
+    min-height: 0;
   }
 
   .page-container {
@@ -347,8 +262,11 @@
     border: 1px solid var(--border);
     width: 100%;
     max-width: 760px;
+    flex: 1;
+    min-height: 0;
     box-shadow: 0 2px 24px var(--shadow), 0 0 0 1px rgba(0,0,0,0.04);
     position: relative;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
   }
@@ -374,6 +292,9 @@
     font-size: var(--font-size);
     line-height: var(--line-height);
     color: var(--text);
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
   }
 
   #page-content p {
@@ -503,19 +424,11 @@
   }
 
   @media (max-width: 600px) {
-    #page-content { padding: 20px 16px; }
-    .page-footer { padding: 10px 16px; }
-    .toolbar { padding: 0 6px; height: 48px; }
-    .toolbar-group { padding: 0 6px; }
-    .tb-label { display: none; }
-    .tb-btn { padding: 4px 6px; font-size: 13px; }
-    .tb-val { min-width: 26px; font-size: 12px; }
-    .tb-select { max-width: 90px; font-size: 12px; padding: 3px 4px; }
-    .theme-btn { padding: 4px 6px; font-size: 12px; }
-    .view-mode-btn { padding: 4px 6px; font-size: 11px; }
-    #back-btn { font-size: 12px; padding: 4px 8px; }
+    #page-content { padding: 32px 20px; }
+    .page-footer { padding: 12px 20px; }
+    .toolbar { gap: 0; }
+    .toolbar-group { padding: 0 8px; }
     .input-options { grid-template-columns: 1fr; }
-    .book-wrapper { padding: 10px 8px 6px; }
   }
 </style>
 </head>
@@ -557,9 +470,6 @@ Sau đó hệ thống sẽ tự động phân trang và trình bày như một c
 
 <!-- READER SCREEN -->
 <div id="reader-screen">
-
-  <!-- Scroll to top button (scroll mode only) -->
-  <button id="scroll-back-top" onclick="document.getElementById('reader-screen').scrollTo({top:0,behavior:'smooth'})" title="Lên đầu">↑</button>
 
   <!-- Toolbar -->
   <div class="toolbar">
@@ -609,15 +519,6 @@ Sau đó hệ thống sẽ tự động phân trang và trình bày như một c
       <button class="theme-btn" onclick="setTheme('theme-night')" title="Đêm">⭐</button>
       <button class="theme-btn" onclick="setTheme('theme-light')" title="Sáng">◎</button>
     </div>
-
-    <div class="toolbar-group">
-      <button class="view-mode-btn" id="btn-paged" onclick="setViewMode('paged')" title="Đọc phân trang">⧉ Trang</button>
-      <button class="view-mode-btn active" id="btn-scroll" onclick="setViewMode('scroll')" title="Xem toàn bộ">☰ Toàn bộ</button>
-    </div>
-
-    <div class="toolbar-group">
-      <button class="view-mode-btn export-btn" onclick="exportPDF()" title="Xuất PDF">⬇ PDF</button>
-    </div>
   </div>
 
   <!-- Book -->
@@ -642,37 +543,7 @@ Sau đó hệ thống sẽ tự động phân trang và trình bày như một c
 </div>
 
 <script>
-let viewMode = 'paged'; // 'paged' | 'scroll'
-let fullText = '';
-
-function setViewMode(mode) {
-  viewMode = mode;
-  const reader = document.getElementById('reader-screen');
-  const btnPaged = document.getElementById('btn-paged');
-  const btnScroll = document.getElementById('btn-scroll');
-
-  if (mode === 'scroll') {
-    reader.classList.add('scroll-mode');
-    btnScroll.classList.add('active');
-    btnPaged.classList.remove('active');
-    renderScrollMode();
-    reader.scrollTop = 0;
-  } else {
-    reader.classList.remove('scroll-mode');
-    btnPaged.classList.add('active');
-    btnScroll.classList.remove('active');
-    reader.scrollTop = 0;
-    renderPage(currentPage);
-  }
-}
-
-function renderScrollMode() {
-  const content = document.getElementById('page-content');
-  // Render all paragraphs from all pages
-  const allParas = pages.flat();
-  content.innerHTML = allParas.map(p => `<p>${escapeHtml(p)}</p>`).join('');
-}
-
+let pages = [];
 let currentPage = 0;
 let fontSize = 28;
 let lineHeight = 1.8;
@@ -748,13 +619,7 @@ function startReading() {
   document.getElementById('input-screen').style.display = 'none';
   document.getElementById('reader-screen').style.display = 'flex';
 
-  // Default to scroll mode
-  viewMode = 'scroll';
-  document.getElementById('reader-screen').classList.add('scroll-mode');
-  document.getElementById('btn-scroll').classList.add('active');
-  document.getElementById('btn-paged').classList.remove('active');
-
-  renderScrollMode();
+  renderPage(0);
 }
 
 function estimateWordsPerPage() {
@@ -830,103 +695,8 @@ function prevPage() {
   }
 }
 
-function getThemeColors() {
-  const themes = {
-    'theme-dark':  { bg: '#1a1916', bgPage: '#211f1c', text: '#d4cfc5', accent: '#c4855a' },
-    'theme-night': { bg: '#0f1117', bgPage: '#161b22', text: '#b8c0cc', accent: '#4a90d9' },
-    'theme-sepia': { bg: '#f2ead8', bgPage: '#f9f4e8', text: '#3d2b1f', accent: '#7a4030' },
-    'theme-light': { bg: '#f0f0f0', bgPage: '#ffffff', text: '#1a1a1a', accent: '#5a6fa8' },
-    'theme-paper': { bg: '#f5f0e8', bgPage: '#faf7f2', text: '#2c2520', accent: '#8b4a2f' },
-  };
-  const cls = [...document.body.classList].find(c => themes[c]);
-  return themes[cls] || themes['theme-light'];
-}
-
-function exportPDF() {
-  const allParas = pages.flat();
-  if (!allParas.length) return;
-
-  const colors = getThemeColors();
-  const fontFaceUrl = "https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Lora:ital,wght@0,400;0,500;1,400&family=Merriweather:ital,wght@0,300;0,400;1,300;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;1,8..60,300;1,8..60,400&family=Literata:ital,opsz,wght@0,7..72,300;0,7..72,400;1,7..72,300;1,7..72,400&family=Noto+Serif:ital,wght@0,400;0,500;1,400&display=swap";
-  const marginMm = Math.max(8, Math.min(18, Math.round(marginH * 0.15)));
-
-  const paragraphsHTML = allParas
-    .map((p, i) => `<p class="${i === 0 ? 'first-p' : ''}">${escapeHtml(p)}</p>`)
-    .join('\n');
-
-  const printWin = window.open('', '_blank');
-  if (!printWin) {
-    alert('Trình duyệt chặn pop-up. Vui lòng cho phép pop-up và thử lại.');
-    return;
-  }
-
-  printWin.document.write(`<!DOCTYPE html>
-<html lang="vi">
-<head>
-<meta charset="UTF-8">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="${fontFaceUrl}" rel="stylesheet">
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  @page {
-    size: A4;
-    margin: ${marginMm}mm ${marginMm + 2}mm;
-  }
-
-  html, body {
-    background: ${colors.bgPage};
-    color: ${colors.text};
-    font-family: ${currentFont};
-    font-size: ${fontSize}px;
-    line-height: ${lineHeight};
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  p {
-    margin-bottom: ${(fontSize * 0.75).toFixed(1)}px;
-    text-align: justify;
-    text-indent: 1.5em;
-    hyphens: auto;
-    orphans: 3;
-    widows: 3;
-  }
-  p.first-p { text-indent: 0; }
-  p.first-p::first-letter {
-    font-size: 3.4em;
-    font-weight: 500;
-    float: left;
-    line-height: 0.78;
-    margin: 0.05em 0.08em 0 0;
-    color: ${colors.accent};
-    font-family: 'EB Garamond', Georgia, serif;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  @media print {
-    html, body { background: ${colors.bgPage} !important; }
-  }
-</style>
-</head>
-<body>
-${paragraphsHTML}
-<script>
-  // Wait for fonts then print
-  document.fonts.ready.then(() => {
-    setTimeout(() => { window.print(); }, 300);
-  });
-<\/script>
-</body>
-</html>`);
-  printWin.document.close();
-}
-
 document.addEventListener('keydown', e => {
   if (document.getElementById('reader-screen').style.display === 'none') return;
-  if (viewMode === 'scroll') return;
   if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextPage(); }
   else if (e.key === 'ArrowLeft') { e.preventDefault(); prevPage(); }
 });
@@ -936,7 +706,6 @@ let touchStartX = 0;
 document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; });
 document.addEventListener('touchend', e => {
   if (document.getElementById('reader-screen').style.display === 'none') return;
-  if (viewMode === 'scroll') return;
   const dx = e.changedTouches[0].clientX - touchStartX;
   if (Math.abs(dx) > 60) { dx < 0 ? nextPage() : prevPage(); }
 });
